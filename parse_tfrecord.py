@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # tf.enable_resource_variables()
     # tf.enable_eager_execution()
 
-    tf_datasetPath='data/flag_simple'
+    tf_datasetPath='/scratch-ssd/Repos/meshgraphnets/data/flag_simple'
 
     # for split in ['train', 'test', 'valid']:
     for split in ['test', 'valid']:
@@ -60,6 +60,20 @@ if __name__ == '__main__':
         print(f"split: {split}")
         for index, d in enumerate(ds):
             mesh_pos = d['mesh_pos'].numpy()
+            import numpy as np
+            import matplotlib.pyplot as plt
+
+            # Generate a random (1579,2) NumPy array
+            data = mesh_pos[0]  # Replace with your actual data
+
+            # Create scatter plot
+            plt.figure(figsize=(8, 6))
+            plt.scatter(data[:, 0], data[:, 1], alpha=0.5, edgecolors='k')
+            plt.xlabel("X-axis")
+            plt.ylabel("Y-axis")
+            plt.title("Scatter Plot of (1579,2) NumPy Array")
+            plt.grid(True)
+            plt.show()
             node_type = d['node_type'].numpy()
             # velocity = d['velocity'].numpy()
             cells = d['cells'].numpy()

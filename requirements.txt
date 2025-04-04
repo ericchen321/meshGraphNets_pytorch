@@ -1,6 +1,6 @@
-h5py==3.6.0
+h5py
 matplotlib==3.4.3
-numpy==1.21.1
+numpy
 opencv_python==4.5.4.58
 Pillow==9.1.0
 # torch==1.9.0+cu111
