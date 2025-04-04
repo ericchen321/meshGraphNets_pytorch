@@ -45,29 +45,42 @@ def load_dataset(path, split):
 
 
 if __name__ == '__main__':
-    tf.enable_resource_variables()
-    tf.enable_eager_execution()
+    # tf.enable_resource_variables()
+    # tf.enable_eager_execution()
 
-    tf_datasetPath='data/cylinder_flow'
-    os.makedirs('/mnt/Data/jlx/phygraph/datapkls/', exist_ok=True)
+    tf_datasetPath='data/flag_simple'
 
-    for split in ['train', 'test', 'valid']:
+    # for split in ['train', 'test', 'valid']:
+    for split in ['test', 'valid']:
         ds = load_dataset(tf_datasetPath, split)
-        save_path='/mnt/Data/jlx/phygraph/datapkls/'+ split  +'.h5'
-        f = h5py.File(save_path, "w")
+        save_path='h5/'+ split  +'.h5'
+        # f = h5py.File(save_path, "w")
         print(save_path)
 
+        print(f"split: {split}")
         for index, d in enumerate(ds):
-            pos = d['mesh_pos'].numpy()
+            mesh_pos = d['mesh_pos'].numpy()
             node_type = d['node_type'].numpy()
-            velocity = d['velocity'].numpy()
+            # velocity = d['velocity'].numpy()
             cells = d['cells'].numpy()
-            pressure = d['pressure'].numpy()
-            data = ("pos", "node_type", "velocity", "cells", "pressure")
-            # d = f.create_dataset(str(index), (len(data), ), dtype=pos.dtype)
-            g = f.create_group(str(index))
-            for k in data:
-             g[k] = eval(k)
+            # pressure = d['pressure'].numpy()
+            world_pos = d['world_pos'].numpy()
+            # data = ("pos", "node_type", "velocity", "cells", "pressure")
+            data = ("mesh_pos", "node_type", "cells", "world_pos")
+            # g = f.create_group(str(index))
+            # for k in data:
+            #   g[k] = eval(k)
             
-            print(index)
-        f.close()
+            # print(index)
+            # check keys
+            # if index == 0:
+            #    for k, v in d.items():
+            #        print(k, type(v))
+            #        print(v.numpy().shape)
+            if index == 0:
+              # identify all unique node types in node_type[0, :]
+              unique_node_types = np.unique(node_type[0, :])
+              print(f"unique_node_types: {unique_node_types}")
+              print(f"mesh_pos[0, 0]: {mesh_pos[0, 0]}")
+              print(f"cells[0, 0]: {cells[0, 0]}")
+        # f.close()

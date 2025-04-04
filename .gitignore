@@ -15,3 +15,6 @@ log/
 *.pyc
 *.log
 __pycache__/
+
+data
+h5
