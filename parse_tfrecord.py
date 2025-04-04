@@ -12,6 +12,10 @@ import json
 import os
 import numpy as np
 import h5py
+import trimesh
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation, PillowWriter
+from matplotlib.collections import LineCollection
 
 def _parse(proto, meta):
   """Parses a trajectory from tf.Example."""
@@ -60,20 +64,6 @@ if __name__ == '__main__':
         print(f"split: {split}")
         for index, d in enumerate(ds):
             mesh_pos = d['mesh_pos'].numpy()
-            import numpy as np
-            import matplotlib.pyplot as plt
-
-            # Generate a random (1579,2) NumPy array
-            data = mesh_pos[0]  # Replace with your actual data
-
-            # Create scatter plot
-            plt.figure(figsize=(8, 6))
-            plt.scatter(data[:, 0], data[:, 1], alpha=0.5, edgecolors='k')
-            plt.xlabel("X-axis")
-            plt.ylabel("Y-axis")
-            plt.title("Scatter Plot of (1579,2) NumPy Array")
-            plt.grid(True)
-            plt.show()
             node_type = d['node_type'].numpy()
             # velocity = d['velocity'].numpy()
             cells = d['cells'].numpy()
@@ -84,7 +74,52 @@ if __name__ == '__main__':
             # g = f.create_group(str(index))
             # for k in data:
             #   g[k] = eval(k)
+            vertices = world_pos[0,:,[0,1]].transpose()
+            faces = cells[0]
+            mesh = trimesh.Trimesh(vertices=vertices, faces=faces, process=False)
             
+            # Extract unique edges
+            edges = mesh.edges_unique
+
+            # Convert edges into line segments for Matplotlib
+            segments = [(vertices[e[0]], vertices[e[1]]) for e in edges]
+
+            # Create plot
+            fig, ax = plt.subplots(figsize=(6, 6))
+
+            # Add edges as line collection
+            line_collection = LineCollection(segments, colors='black', linewidths=0.8)
+            ax.add_collection(line_collection)
+
+            # Scatter plot for vertices
+            sc = ax.scatter(vertices[:, 0], vertices[:, 1], color='red', s=10, zorder=2)
+
+            # **Set mesh-space scaling**
+            ax.set_xlim(vertices[:, 0].min(), vertices[:, 0].max())
+            ax.set_ylim(vertices[:, 1].min(), vertices[:, 1].max())
+            ax.set_aspect('equal')  # **Ensures 1:1 aspect ratio**
+            plt.title("Mesh in Mesh Space")
+            plt.savefig("./fig.png")
+
+            # **Function to update vertices each frame**
+            def update(frame):
+                global vertices
+
+                # Update vertices (example: add small random movement)
+                vertices = world_pos[frame,:,[0,1]].transpose()
+                # Update scatter points
+                segments = [(vertices[e[0]], vertices[e[1]]) for e in edges]
+                line_collection.set_segments(segments)
+                sc.set_offsets(vertices)
+
+                return line_collection, sc
+
+            # **Create animation**
+            num_frames = len(mesh_pos)
+            ani = FuncAnimation(fig, update, frames=num_frames, interval=100)
+
+            # **Save as GIF**
+            ani.save("./mesh_animation.gif", writer=PillowWriter(fps=10))
             # print(index)
             # check keys
             # if index == 0:
